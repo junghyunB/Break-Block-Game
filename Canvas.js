@@ -117,8 +117,6 @@ let brokenbrickcount = 0;
 
 
 
-// 방해 블록 관련
-
 let ball = {
     left: 0, right: 0, top: 0, bottom: 0,
 };
@@ -150,17 +148,17 @@ class Brick {
 
 class MovingBrick extends Brick {
     movingAction() {
-        if (this.left == 350) {
+        if(this.left == 350) {
             this.Direction = -1
             this.left += this.Direction
             this.right += this.Direction
-        } else if (this.left < 1)
+        } else if(this.left == 0) 
             this.Direction = 1
             this.left += this.Direction
-            this.right += this.Direction
-    }
+            this.right += this.Direction      
+    }    
 }
-``
+
 let BigBrick = new MovingBrick(175, 175, 225, 225, 1);
 
 
@@ -205,10 +203,6 @@ function setBricks() {
 
 
 
-
-
-
-
 function drawBigBricks() {
     context.beginPath();
     context.rect(BigBrick.left, BigBrick.top, BigBrickWidth, BigBrickHeight);
@@ -249,7 +243,8 @@ function keyDownEventHandler(e) {
         setInterval(update, 10);
     }
     if (e.key == "Enter") {
-        console.log("arcposX : ", ball.left, "arcposY : ", BigBrick.right, "brickpos:", BigBrick.left)
+        console.log(BigBrick)
+        console.log(ball)
     }
     barPosX += rectMoveDirX;
 
@@ -289,6 +284,7 @@ function update() {
     ball.bottom = arcPosY + arcRadius;
 
 
+
     //충돌확인
     if (isCollisionRectToRect(ball, paddle)) {
         arcMoveDirY = -1;
@@ -298,7 +294,7 @@ function update() {
 
     if (isCollisionRectToRect(ball, BigBrick)) {
         arcMoveDirY = -arcMoveDirY;
-        console.log('충돌')
+
     }
 
 
@@ -318,36 +314,44 @@ function update() {
     BigBrick.movingAction();
     noMoreBricks(); //벽돌없어
     //바닥에 떨어지면/ 패들보다 낮게 떨어지면
-    // gameOver();
+    gameOver();
 
 }
 
-// function gameOver() {
-//     if (arcPosY > 380) {
-//         window.location.reload(true);
-//         alert("Game Over");
-//     }
-// }
+function gameOver() {
+    if (arcPosY > 380) {
+        window.location.reload(true);
+        alert("Game Over");
+    }
+}
 
 
-function noMoreBricks() {
+async function asyncTimeoutCheckClear(brickColumn, brickRow, timeout) {
+    if (brokenbrickcount == brickColumn * brickRow) {
+        setTimeout(() => {
+        window.location.reload(true);
+        alert("Game Clear")
+        }, timeout);
+    }
+    else throw new Error(age);
+}
+
+async function noMoreBricks() {
 
     // bricks배열에 있는 정보로 처리
     // flat() 2차원 배열을 1차원 배열로 바꿔줌
 
-    let flatBricks = bricks.flat()
+    // let flatBricks = bricks.flat()
 
-    let deadBricks = flatBricks.filter(brick => brick.isAlive == false);
-    if (deadBricks.length == brickRow * brickColumn) {
-        window.location.reload(true);
-        alert("Game Clear")
-    }
-
-    // if(brokenbrickcount == brickColumn * brickRow) {
+    // let deadBricks = flatBricks.filter(brick => brick.isAlive == false);
+    // if (deadBricks.length == brickRow * brickColumn) {
     //     window.location.reload(true);
     //     alert("Game Clear")
     // }
+    await asyncTimeoutCheckClear(brickColumn, brickRow, 1000);
+
 }
+
 
 function isCollisionRectToRect(rectA, rectB) {
     //a의 왼쪽과 b의 오른쪽
